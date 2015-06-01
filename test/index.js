@@ -127,6 +127,37 @@ describe("HT Express", function() {
 
   });
 
+  it("should merge data properly", function(done) {
+
+    var client = getClientWithServices({ s1: { m1: function(data, callback) {
+      assert.deepEqual(data, {
+        one:   1,
+        two:   22,
+        three: 333
+      });
+      done();
+    } } });
+
+    var app = express();
+    app.use(bodyParser.json());
+    app.post('/:three', hte(client, "s1", "m1", [ 'body', 'query', 'params' ]));
+
+    request(app)
+      .post('/333')
+      .query({
+        two:   22,
+        three: 33
+      })
+      .send({
+        one:   1,
+        two:   2,
+        three: 3
+      })
+      .expect(200)
+      .end();
+
+  });
+
   it("should return 400 if there was a validation error", function(done) {
 
     var client = getClientWithServices({ s1: { m1: {
