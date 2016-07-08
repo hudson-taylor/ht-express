@@ -116,6 +116,30 @@ describe('HT Express', function () {
       .end()
   })
 
+  it('should pull non-object data from other places if specified', function (done) {
+    var client = getClientWithServices({ s1: { m1: function (data, callback) {
+      assert.deepEqual(data, {
+        hello: 'world',
+        ip: '1.2.3.4'
+      })
+      callback()
+    } } })
+
+    var app = express()
+    app.use(bodyParser.json())
+    app.set('trust proxy', 1)
+    app.post('/', hte(client, 's1', 'm1', [ 'body', 'ip' ]))
+
+    request(app)
+      .post('/')
+      .send({
+        hello: 'world'
+      })
+      .set('x-forwarded-for', '1.2.3.4')
+      .expect(200)
+      .end(done)
+  })
+
   it('should merge data properly', function (done) {
     var client = getClientWithServices({ s1: { m1: function (data, callback) {
       assert.deepEqual(data, {
