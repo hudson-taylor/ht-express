@@ -128,7 +128,7 @@ describe('HT Express', function () {
     var app = express()
     app.use(bodyParser.json())
     app.set('trust proxy', 1)
-    app.post('/', hte(client, 's1', 'm1', [ 'body', { fruit: 'banana' }]))
+    app.post('/', hte(client, 's1', 'm1', [ 'body', {fruit: 'banana'} ]))
 
     request(app)
       .post('/')
