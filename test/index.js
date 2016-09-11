@@ -263,6 +263,32 @@ describe('HT Express', function () {
         done()
       })
   })
+
+  it('should return headers when set from service', function (done) {
+    var client = getClientWithServices({ s1: { m1: function (data, callback) {
+      return callback(null, {
+        hello: 'world',
+        headers: {
+          'Content-Type': 'text/something'
+        }
+      })
+    } } })
+
+    var app = express()
+    app.get('/', hte(client, 's1', 'm1'))
+
+    request(app)
+      .get('/')
+      .expect(200)
+      .end(function (err, res) {
+        assert.ifError(err)
+        assert.equal(res.text, JSON.stringify({
+          hello: 'world'
+        }))
+        assert.equal(res.get('Content-Type'), 'text/something; charset=utf-8')
+        done()
+      })
+  })
 })
 
 function getClientWithServices (services) {
