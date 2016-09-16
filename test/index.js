@@ -24,6 +24,29 @@ describe('HT Express', function () {
       .end(done)
   })
 
+  it('should insert elements from the request', function (done) {
+    var client = getClientWithServices(
+      { s1:
+        { m1: function (data, callback) {
+          assert.deepEqual(data.hteRequest.headers['x-test-header'], 'VALUE')
+          return callback(null,
+                          { value: data.hteRequest.headers['x-test-header'] })
+        } }
+      })
+
+    var app = express()
+    app.get('/', hte(client, 's1', 'm1', ['body'], ['headers']))
+
+    request(app)
+      .get('/')
+      .set('X-TEST-HEADER', 'VALUE')
+      .expect(200)
+      .expect(function (res) {
+        assert.deepEqual(res.body, { value: 'VALUE' })
+      })
+      .end(done)
+  })
+
   it('should return correct json headers if response is an object', function (done) {
     var client = getClientWithServices({ s1: { m1: function (data, callback) {
       return callback(null, data)
