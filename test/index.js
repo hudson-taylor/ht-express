@@ -41,7 +41,7 @@ describe('HT Express', function () {
       .get('/')
       .set('X-TEST-HEADER', 'VALUE')
       .expect(200)
-      .expect((res) => {
+      .expect(function (res) {
         assert.deepEqual(res.body, { value: 'VALUE' })
       })
       .end(done)
